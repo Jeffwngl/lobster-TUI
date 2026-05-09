@@ -1,8 +1,15 @@
 use crate::api::Story;
 
+pub enum View {
+    Stories,
+    Article(String),
+}
+
 pub struct App {
     pub stories: Vec<Story>,
     pub selected: usize,
+    pub page: String,
+    pub view: View,
 }
 
 impl App {
@@ -10,6 +17,8 @@ impl App {
         Self {
             stories,
             selected: 0,
+            page: String::from("Lobste.rs - Hottest"),
+            view: View::Stories,
         }
     }
 

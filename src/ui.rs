@@ -1,4 +1,5 @@
 use crate::app::App;
+use crate::app::View;
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout},
@@ -7,7 +8,15 @@ use ratatui::{
     widgets::{Block, Borders, List, ListItem, ListState, Paragraph},
 };
 
+// drawing lobste.rs pages
 pub fn draw(f: &mut Frame, app: &App) {
+    match &app.view {
+        View::Stories => draw_stories(f, app),
+        View::Article(text) => draw_article(f, text),
+    }
+}
+
+fn draw_stories(f: &mut Frame, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
@@ -18,7 +27,7 @@ pub fn draw(f: &mut Frame, app: &App) {
         .split(f.area());
 
     // header
-    let header = Paragraph::new("Lobste.rs — hottest")
+    let header = Paragraph::new(app.page.clone())
         .block(Block::default().borders(Borders::ALL))
         .style(Style::default().fg(Color::Red).add_modifier(Modifier::BOLD));
     f.render_widget(header, chunks[0]);
@@ -70,8 +79,20 @@ pub fn draw(f: &mut Frame, app: &App) {
     f.render_stateful_widget(list, chunks[1], &mut state);
 
     // footer
-    let footer = Paragraph::new(" j/k  move    enter  open story    c  open comments    q  quit")
-        .block(Block::default().borders(Borders::ALL))
-        .style(Style::default().fg(Color::DarkGray));
+    let footer =
+        Paragraph::new("| j/k  move |  | enter  open story |  | c  open comments |  | q  quit |")
+            .block(Block::default().borders(Borders::ALL))
+            .style(Style::default().fg(Color::DarkGray));
     f.render_widget(footer, chunks[2]);
+}
+
+// drawing story articles from html
+fn draw_article(f: &mut Frame, text: &str) {
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .title("Article — Esc to go back");
+    let para = Paragraph::new(text)
+        .block(block)
+        .wrap(ratatui::widgets::Wrap { trim: true });
+    f.render_widget(para, f.area());
 }

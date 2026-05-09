@@ -6,8 +6,11 @@ edition = "2024"
 [dependencies]
 anyhow = "1.0.102"
 crossterm = "0.29.0"
+html5ever = "0.39.0"
 open = "5.3.4"
 ratatui = "0.30.0"
+readable-readability = "0.4.0"
 reqwest = { version = "0.13.3", features = ["json"] }
 serde = { version = "1.0.228", features = ["derive"] }
 tokio = { version = "1.52.2", features = ["full"] }
+url = "2.5.8"
