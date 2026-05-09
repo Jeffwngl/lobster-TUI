@@ -1,7 +1,7 @@
 # lobster-TUI
 A TUI for the Lobste.rs website.
 
-
+![picture]("public/ui.png")
 
 ## Dependencies
 
