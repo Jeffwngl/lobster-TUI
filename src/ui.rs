@@ -86,7 +86,7 @@ fn draw_stories(f: &mut Frame, app: &App) {
 
     // footer
     let footer =
-        Paragraph::new("| j/k  move |  | enter open story url |  | o open story in tui |  | v open comments in tui |  | c  open comments url |  | q  quit |")
+        Paragraph::new("| j/k  move |  | enter  open story url |  | o  open story in tui |  | v  open comments in tui |  | c  open comments url |  | q  quit |")
             .block(Block::default().borders(Borders::ALL))
             .style(Style::default().fg(Color::DarkGray));
     f.render_widget(footer, chunks[2]);
