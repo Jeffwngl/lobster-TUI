@@ -1,35 +1,46 @@
-use crate::api::Story;
+use crate::api::{Comment, Story};
 
 pub enum View {
     Stories,
     Article(String),
+    Comments(Vec<Comment>),
 }
 
 pub struct App {
     pub stories: Vec<Story>,
     pub selected: usize,
-    pub page: String,
     pub view: View,
+    pub comment_selected: usize,
+    pub loading: bool,
 }
 
 impl App {
-    pub fn new(stories: Vec<Story>) -> Self {
+    pub fn new() -> Self {
         Self {
-            stories,
+            stories: vec![],
             selected: 0,
-            page: String::from("Lobste.rs - Hottest"),
             view: View::Stories,
+            comment_selected: 0,
+            loading: true,
         }
     }
 
     pub fn next(&mut self) {
-        if self.selected + 1 < self.stories.len() {
+        if let View::Comments(comments) = &self.view {
+            if self.comment_selected + 1 < comments.len() {
+                self.comment_selected += 1;
+            }
+        } else if self.selected + 1 < self.stories.len() {
             self.selected += 1;
         }
     }
 
     pub fn prev(&mut self) {
-        if self.selected > 0 {
+        if let View::Comments(_) = &self.view {
+            if self.comment_selected > 0 {
+                self.comment_selected -= 1;
+            }
+        } else if self.selected > 0 {
             self.selected -= 1;
         }
     }

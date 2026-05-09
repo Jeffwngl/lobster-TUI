@@ -1,6 +1,7 @@
 mod api;
 mod app;
 mod ui;
+mod utils;
 
 use app::App;
 use crossterm::{
@@ -16,13 +17,18 @@ use crate::app::View;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let stories = api::fetch().await?;
-    let mut app = App::new(stories);
-
     enable_raw_mode()?;
     let mut stdout = io::stdout(); // get access to terminal output
     execute!(stdout, EnterAlternateScreen)?; // open a fresh blank screen/buffer
     let mut terminal = Terminal::new(CrosstermBackend::new(stdout))?; // create terminal backend
+
+    let mut app = App::new();
+
+    terminal.draw(|f| ui::draw(f, &app))?;
+
+    let stories = api::fetch().await?;
+    app.stories = stories;
+    app.loading = false;
 
     loop {
         // render
@@ -35,15 +41,30 @@ async fn main() -> anyhow::Result<()> {
                 KeyCode::Char('j') | KeyCode::Down => app.next(),
                 KeyCode::Char('k') | KeyCode::Up => app.prev(),
                 KeyCode::Char('o') => {
+                    // open page in tui
                     if let Some(s) = app.stories.get(app.selected) {
+                        app.loading = true;
+                        terminal.draw(|f| ui::draw(f, &app))?;
                         let html = reqwest::get(&s.url).await?.text().await?;
                         if let Some(text) = extract_article(&html, &s.url) {
                             app.view = View::Article(text);
                         }
+                        app.loading = false;
                     }
                 }
                 KeyCode::Enter => app.open_story(),
                 KeyCode::Char('c') => app.open_comments(),
+                KeyCode::Char('v') => {
+                    // open comments in tui
+                    if let Some(s) = app.stories.get(app.selected) {
+                        app.loading = true;
+                        terminal.draw(|f| ui::draw(f, &app))?;
+                        let comments = api::fetch_comments(&s.short_id).await?;
+                        app.view = View::Comments(comments);
+                        app.comment_selected = 0;
+                        app.loading = false;
+                    }
+                }
                 KeyCode::Esc => app.view = View::Stories,
                 _ => {}
             }
